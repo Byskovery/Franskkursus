@@ -429,13 +429,34 @@ function voiceText(){
 function speak(text, slow){
   if(!tts.ok) return;
   try{
-    window.speechSynthesis.cancel();
+    var synth = window.speechSynthesis;
     var u = new SpeechSynthesisUtterance(String(text).replace(/[—–]/g," "));
     u.lang = "fr-FR"; if(tts.voice) u.voice = tts.voice;
     u.rate = slow ? 0.6 : 0.9;
-    setTimeout(function(){ try{ window.speechSynthesis.speak(u); }catch(e){} }, 60);
+    // iPhone og iPad afspiller kun tale, der startes direkte i trykket. Derfor
+    // tales der med det samme, og kun en igangværende oplæsning stoppes først.
+    if(synth.speaking || synth.pending){
+      synth.cancel();
+      setTimeout(function(){ try{ synth.speak(u); }catch(e){} }, 80);
+    } else {
+      synth.speak(u);
+    }
+    if(synth.paused) synth.resume();
   }catch(e){}
 }
+// Første tryk på siden låser lyden op på telefoner, der kræver det.
+(function(){
+  if(!tts.ok) return;
+  var done = false;
+  function unlock(){
+    if(done) return; done = true;
+    try{ var u = new SpeechSynthesisUtterance(" "); u.volume = 0; window.speechSynthesis.speak(u); }catch(e){}
+    document.removeEventListener("touchend", unlock, true);
+    document.removeEventListener("click", unlock, true);
+  }
+  document.addEventListener("touchend", unlock, true);
+  document.addEventListener("click", unlock, true);
+})();
 
 /* ---------- Mikrofon ---------- */
 var IN_APP = /Electron\//.test(navigator.userAgent || "");
