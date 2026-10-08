@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif;background:#fafafa}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Fransk ordforråd</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Charis+SIL&display=swap">
+<style>
+/* Layout: one narrow notebook column made for the phone. The word being learned
+   sits on Seyès-ruled paper (the ruling of French school notebooks); everything
+   around it stays plain. Light theme is the cahier, dark theme is the slate. */
+:root{
+  --paper:#f3f5fc; --sheet:#ffffff; --ink:#1c2b74; --text:#22273f; --muted:#596083;
+  --rule:#e3e7f8; --rule-strong:#b9c3ec; --margin:#e25c74;
+  --line:#dbe0f2; --line-strong:#b4bddf;
+  --accent:#2a45c9; --accent-fg:#ffffff; --focus:#e25c74;
+  --good:#17714a; --good-bg:#e0f3e8; --bad:#b52a44; --bad-bg:#fce6ea; --warn:#7a5000; --warn-bg:#fcf0cf;
+  --font-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --font-body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-ipa:"Charis SIL","Gentium Plus","Doulos SIL","Noto Serif","Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#181d21; --sheet:#222a2f; --ink:#f0f3f8; --text:#d8dee6; --muted:#9ba6b4;
+    --rule:#2b353c; --rule-strong:#44525c; --margin:#e98da0;
+    --line:#323c44; --line-strong:#56646f;
+    --accent:#9ab6ff; --accent-fg:#111827; --focus:#e98da0;
+    --good:#86d9aa; --good-bg:#1c3a2c; --bad:#ffa0b0; --bad-bg:#45232b; --warn:#f1c76f; --warn-bg:#3c3116;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#181d21; --sheet:#222a2f; --ink:#f0f3f8; --text:#d8dee6; --muted:#9ba6b4;
+  --rule:#2b353c; --rule-strong:#44525c; --margin:#e98da0;
+  --line:#323c44; --line-strong:#56646f;
+  --accent:#9ab6ff; --accent-fg:#111827; --focus:#e98da0;
+  --good:#86d9aa; --good-bg:#1c3a2c; --bad:#ffa0b0; --bad-bg:#45232b; --warn:#f1c76f; --warn-bg:#3c3116;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--text);font-family:var(--font-body);font-size:17px;line-height:1.5}
+p,h1,h2,h3,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.wrap{max-width:38rem;margin-inline:auto;padding-inline:16px;padding-block:20px 56px}
+.stack{display:flex;flex-direction:column;gap:32px}
+.block{display:flex;flex-direction:column;gap:12px;min-width:0}
+
+h1{font-family:var(--font-display);font-weight:800;font-size:2.1rem;line-height:1.05;color:var(--ink);letter-spacing:-.01em;text-wrap:balance}
+h2{font-family:var(--font-display);font-weight:700;font-size:1.35rem;line-height:1.2;color:var(--ink);text-wrap:balance}
+.kicker{font-size:.8rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--muted);max-width:34rem}
+.note{font-size:.92rem;color:var(--muted)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 18px;border-radius:10px;border:1.5px solid var(--line-strong);background:var(--sheet);color:var(--ink);font-weight:700;cursor:pointer;text-align:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--muted);font-weight:400;text-decoration:underline;padding-inline:6px}
+.btn.small{min-height:40px;padding:6px 14px;font-size:.92rem}
+.btn:disabled{opacity:.5;cursor:default}
+.btn svg{width:18px;height:18px;flex:none}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.actions .primary{flex:1 1 12rem}
+
+/* Overall progress */
+.meter{display:flex;flex-direction:column;gap:6px}
+.meter-text{display:flex;justify-content:space-between;gap:12px;font-size:.92rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .25s ease}
+@media (prefers-reduced-motion: reduce){.bar span{transition:none}}
+
+.resume{background:var(--sheet);border:1.5px solid var(--accent);border-radius:12px;padding:16px}
+
+/* Rounds */
+.rounds{border-top:1px solid var(--line)}
+.round{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.round-name{font-family:var(--font-display);font-weight:700;font-size:1.05rem;color:var(--ink)}
+.round-words{font-size:.92rem;color:var(--muted);overflow-wrap:anywhere}
+.round-state{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--good)}
+.round .btn{grid-row:1 / span 2;grid-column:2}
+
+/* The ruled word card */
+.cahier{background-color:var(--sheet);
+  background-image:
+    linear-gradient(to right,transparent 27px,var(--margin) 27px,var(--margin) 28.5px,transparent 28.5px),
+    repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--rule-strong) 31px,var(--rule-strong) 32px),
+    repeating-linear-gradient(to bottom,transparent 0,transparent 7px,var(--rule) 7px,var(--rule) 8px);
+  border:1px solid var(--line);border-radius:4px;padding:24px 18px 23px 44px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.fr{font-family:var(--font-display);font-weight:700;font-size:2.5rem;line-height:1;color:var(--ink);overflow-wrap:anywhere}
+.fr.long{font-size:1.9rem;line-height:1.1}
+.ipa{font-family:var(--font-ipa);font-size:1.1rem;color:var(--muted)}
+.meaning{font-size:1.3rem;font-weight:700;color:var(--text)}
+.tip{max-width:34rem}
+.example{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.ex-fr{font-family:var(--font-display);font-weight:600;font-size:1.15rem;color:var(--ink)}
+.ex-da{color:var(--muted)}
+.example .btn{margin-top:6px}
+
+/* Session chrome */
+.sess-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
+.sess-label{font-size:.92rem;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sess-count{font-size:.92rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.stage{display:flex;flex-direction:column;gap:16px;margin-top:20px;min-width:0}
+.prompt-da{font-size:1.5rem;font-weight:700;color:var(--ink)}
+
+/* Multiple choice */
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{justify-content:flex-start;text-align:left;font-weight:400;color:var(--text)}
+.opt.right{background:var(--good-bg);border-color:var(--good);color:var(--good);font-weight:700;opacity:1}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad);color:var(--bad);opacity:1}
+
+/* Typing */
+.answer{display:flex;flex-direction:column;gap:10px}
+.answer input{width:100%;min-height:54px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--line-strong);background:var(--sheet);color:var(--ink);font-size:1.25rem;font-family:var(--font-display);font-weight:600}
+.answer input:disabled{opacity:.8}
+.accents{display:flex;flex-wrap:wrap;gap:6px}
+.accents button{min-width:42px;min-height:42px;border-radius:8px;border:1px solid var(--line-strong);background:var(--sheet);color:var(--ink);font-family:var(--font-display);font-weight:600;font-size:1.1rem;cursor:pointer}
+
+/* Feedback */
+.fb{padding:14px 16px;border-radius:10px;display:flex;flex-direction:column;gap:2px}
+.fb.good{background:var(--good-bg);color:var(--good)}
+.fb.bad{background:var(--bad-bg);color:var(--bad)}
+.fb.warn{background:var(--warn-bg);color:var(--warn)}
+.fb-head{font-weight:700}
+.fb-word{font-family:var(--font-display);font-weight:700;font-size:1.4rem;color:var(--ink)}
+.fb-word .ipa{font-weight:400;font-size:1rem}
+.fb-da,.fb-given{color:var(--text)}
+
+/* Word list */
+.words{border-top:1px solid var(--line)}
+.word{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.word .say{grid-row:1 / span 2;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line-strong);background:var(--sheet);color:var(--accent);cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.word .say svg{width:18px;height:18px}
+.word-fr{font-family:var(--font-display);font-weight:700;color:var(--ink);overflow-wrap:anywhere}
+.word-da{grid-column:2;font-size:.92rem;color:var(--muted)}
+.chip{grid-row:1 / span 2;grid-column:3;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:99px;border:1px solid var(--line-strong);color:var(--muted);white-space:nowrap}
+.chip.s1{background:var(--warn-bg);border-color:transparent;color:var(--warn)}
+.chip.s2,.chip.s3{background:var(--good-bg);border-color:transparent;color:var(--good)}
+.group-title{font-size:.8rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:16px 0 6px}
+
+/* Upcoming lessons */
+.upcoming li{display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:8px;padding:7px 0;border-bottom:1px solid var(--line);color:var(--muted)}
+.upcoming li span:first-child{font-variant-numeric:tabular-nums;font-weight:700}
+
+/* Summary */
+.score{font-family:var(--font-display);font-weight:800;font-size:3rem;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.missed li{padding:8px 0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.missed .word-fr{font-size:1.1rem}
+</style>
+</head>
+<body>
+<div id="app" class="wrap" lang="da"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Indhold: lektion 1 ---------- */
+var NB = " "; // fransk smalt mellemrum foran ? og !
+
+var ROUNDS = [
+  {id:"1-1", name:"Goddag", words:["bonjour","bonsoir","salut","monsieur","madame","bienvenue"]},
+  {id:"1-2", name:"Farvel og tak", words:["au-revoir","a-bientot","a-demain","bonne-nuit","merci","beaucoup"]},
+  {id:"1-3", name:"Høflighed", words:["sil-vous-plait","de-rien","pardon","excusez-moi","desole","daccord"]},
+  {id:"1-4", name:"Ja, nej og hvordan går det", words:["oui","non","peut-etre","bien-sur","ca-va","tres-bien"]},
+  {id:"1-5", name:"Småord", words:["et","ou","mais","avec","aussi","et-toi"]}
+];
+
+var WORDS = [
+  {id:"bonjour", fr:"bonjour", da:"goddag", ipa:"bɔ̃.ʒuʁ",
+   tip:"”on” er en næselyd: sig ”å” gennem næsen, og udtal ikke n’et. ”j” er blødt, som s’et i engelsk ”measure”.",
+   ex:"Bonjour, madame.", exda:"Goddag, frue."},
+  {id:"bonsoir", fr:"bonsoir", da:"godaften", ipa:"bɔ̃.swaʁ",
+   tip:"”oi” udtales ”wa”. Næselyden er den samme som i bonjour.",
+   ex:"Bonsoir, monsieur.", exda:"Godaften, hr."},
+  {id:"salut", fr:"salut", da:"hej (til venner)", ipa:"sa.ly",
+   tip:"t’et er stumt, og ”u” udtales som dansk ”y”: ”sa-ly”. Bruges både, når man kommer, og når man går.",
+   ex:"Salut, ça va"+NB+"?", exda:"Hej, går det godt?"},
+  {id:"monsieur", fr:"monsieur", da:"hr., herre", ipa:"mə.sjø",
+   tip:"Udtales helt anderledes, end det staves: ”mø-sjø”. Hverken n eller r høres.",
+   ex:"Bonjour, monsieur.", exda:"Goddag, hr."},
+  {id:"madame", fr:"madame", da:"fru, frue", ipa:"ma.dam",
+   tip:"Det sidste e er stumt: ”ma-dam” med tryk på sidste stavelse.",
+   ex:"Bonsoir, madame.", exda:"Godaften, frue."},
+  {id:"bienvenue", fr:"bienvenue", da:"velkommen", ipa:"bjɛ̃.və.ny",
+   tip:"”ien” er en næselyd, cirka ”bjæ” gennem næsen. ”u” lyder som dansk ”y”, og det sidste e er stumt.",
+   ex:"Bienvenue à Paris.", exda:"Velkommen til Paris."},
+
+  {id:"au-revoir", fr:"au revoir", da:"farvel", ipa:"o ʁə.vwaʁ",
+   tip:"”au” udtales ”o”, og ”oi” udtales ”wa”. I hurtig tale bliver det til ”or-vwar”.",
+   ex:"Au revoir et merci.", exda:"Farvel og tak."},
+  {id:"a-bientot", fr:"à bientôt", da:"vi ses snart", ipa:"a bjɛ̃.to",
+   tip:"Samme næselyd som i bienvenue. Det sidste t er stumt: ”a bjæ-to”.",
+   ex:"Merci et à bientôt.", exda:"Tak, og på snarligt gensyn."},
+  {id:"a-demain", fr:"à demain", da:"vi ses i morgen", ipa:"a də.mɛ̃",
+   tip:"”ain” er den samme næselyd som i ”bien”. n’et udtales ikke.",
+   ex:"Au revoir, à demain.", exda:"Farvel, vi ses i morgen."},
+  {id:"bonne-nuit", fr:"bonne nuit", da:"godnat", ipa:"bɔn nɥi",
+   tip:"Her høres n’et i ”bonne”, fordi der står et e efter. ”ui” er et hurtigt ”y” fulgt af ”i”. t’et er stumt.",
+   ex:"Bonne nuit, à demain.", exda:"Godnat, vi ses i morgen."},
+  {id:"merci", fr:"merci", da:"tak", ipa:"mɛʁ.si",
+   tip:"c udtales som s. Trykket ligger på sidste stavelse, som det næsten altid gør på fransk.",
+   ex:"Merci, madame.", exda:"Tak, frue."},
+  {id:"beaucoup", fr:"beaucoup", da:"meget, mange", ipa:"bo.ku",
+   tip:"”eau” er ”o”, og ”ou” er dansk ”u”. p’et er stumt: ”bo-ku”.",
+   ex:"Merci beaucoup.", exda:"Mange tak."},
+
+  {id:"sil-vous-plait", fr:"s'il vous plaît", alt:["s'il vous plait"], da:"vær så venlig (når du beder om noget)", ipa:"sil vu plɛ",
+   tip:"”ou” som dansk ”u”, og ”aî” som dansk ”æ”. s og t til sidst er stumme: ”sil vu plæ”.",
+   ex:"Un café, s'il vous plaît.", exda:"En kaffe, tak."},
+  {id:"de-rien", fr:"de rien", da:"det var så lidt", ipa:"də ʁjɛ̃",
+   tip:"”ien” med næselyd, som i ”bien”. Det er svaret, når nogen siger merci.",
+   ex:"— Merci"+NB+"! — De rien.", say:"Merci ! De rien.", exda:"”Tak!” ”Det var så lidt.”"},
+  {id:"pardon", fr:"pardon", da:"undskyld", ipa:"paʁ.dɔ̃",
+   tip:"”on” er en næselyd som i bonjour. Bruges, når du støder ind i nogen eller ikke hørte, hvad der blev sagt.",
+   ex:"Pardon, monsieur.", exda:"Undskyld, hr."},
+  {id:"excusez-moi", fr:"excusez-moi", da:"undskyld mig (for at få kontakt)", ipa:"ɛk.sky.ze mwa",
+   tip:"”u” som dansk ”y”, ”ez” som e’et i dansk ”se”, og ”moi” er ”mwa”.",
+   ex:"Excusez-moi, madame.", exda:"Undskyld mig, frue."},
+  {id:"desole", fr:"désolé", alt:["désolée"], da:"beklager, det er jeg ked af", ipa:"de.zɔ.le",
+   tip:"Et enkelt s mellem to vokaler er stemt, som z i engelsk ”zoo”. En kvinde skriver désolée, men det udtales ens.",
+   ex:"Je suis désolé.", exda:"Det er jeg ked af."},
+  {id:"daccord", fr:"d'accord", da:"okay, i orden", ipa:"da.kɔʁ",
+   tip:"Det sidste d er stumt, og dobbelt c foran o udtales som k: ”da-kår”.",
+   ex:"D'accord, à demain.", exda:"Okay, vi ses i morgen."},
+
+  {id:"oui", fr:"oui", da:"ja", ipa:"wi",
+   tip:"Udtales ”wi”, som engelsk ”we”.",
+   ex:"Oui, merci.", exda:"Ja tak."},
+  {id:"non", fr:"non", da:"nej", ipa:"nɔ̃", hint:true,
+   tip:"Næselyd: vokalen går gennem næsen, og det sidste n udtales ikke.",
+   ex:"Non, merci.", exda:"Nej tak."},
+  {id:"peut-etre", fr:"peut-être", da:"måske", ipa:"pø.tɛtʁ",
+   tip:"”eu” som dansk ”ø”. t’et i ”peut” bindes over til næste ord: ”pø-tætr”.",
+   ex:"Peut-être demain.", exda:"Måske i morgen."},
+  {id:"bien-sur", fr:"bien sûr", da:"selvfølgelig", ipa:"bjɛ̃ syʁ",
+   tip:"”û” som dansk ”y”. Her udtales r’et til sidst.",
+   ex:"Oui, bien sûr.", exda:"Ja, selvfølgelig."},
+  {id:"ca-va", fr:"ça va", da:"det går fint / går det godt?", ipa:"sa va",
+   tip:"ç udtales altid som s. Med stigende tone er det et spørgsmål, med faldende tone et svar.",
+   ex:"Ça va"+NB+"? Oui, ça va.", exda:"Går det godt? Ja, det går fint."},
+  {id:"tres-bien", fr:"très bien", da:"rigtig godt", ipa:"tʁɛ bjɛ̃",
+   tip:"s’et i ”très” er stumt, og ”è” lyder som dansk ”æ”.",
+   ex:"Ça va très bien, merci.", exda:"Det går rigtig godt, tak."},
+
+  {id:"et", fr:"et", da:"og", ipa:"e", hint:true,
+   tip:"Et kort, lukket ”e”. t’et udtales aldrig, heller ikke foran en vokal.",
+   ex:"Monsieur et madame.", exda:"Hr. og fru."},
+  {id:"ou", fr:"ou", da:"eller", ipa:"u", hint:true,
+   tip:"Som dansk ”u”. Med accent, ”où”, betyder det ”hvor”, men det lyder ens.",
+   ex:"Oui ou non"+NB+"?", exda:"Ja eller nej?"},
+  {id:"mais", fr:"mais", da:"men", ipa:"mɛ", hint:true,
+   tip:"”ai” som dansk ”æ”, og s’et er stumt.",
+   ex:"Merci, mais non.", exda:"Tak, men nej."},
+  {id:"avec", fr:"avec", da:"med", ipa:"a.vɛk",
+   tip:"Her udtales c’et til sidst som k. Det er en af undtagelserne fra reglen om stumme slutbogstaver.",
+   ex:"Avec plaisir.", exda:"Med fornøjelse."},
+  {id:"aussi", fr:"aussi", da:"også", ipa:"o.si",
+   tip:"”au” er ”o”. Dobbelt s er ustemt som et dansk s: ”o-si”.",
+   ex:"Moi aussi.", exda:"Også mig."},
+  {id:"et-toi", fr:"et toi"+NB+"?", da:"og du?", ipa:"e twa",
+   tip:"”toi” udtales ”twa”. Til en, du er Des med, siger du ”et vous"+NB+"?”.",
+   ex:"Ça va bien, et toi"+NB+"?", exda:"Det går godt, og du?"}
+];
+
+var UPCOMING = [
+  [2,"Tal, dage, måneder og klokken"],
+  [3,"Personer og familie"],
+  [4,"De vigtigste verber"],
+  [5,"Mad og drikke"],
+  [6,"Hjem og hverdagsting"],
+  [7,"By, transport og retninger"],
+  [8,"Tillægsord: farver, størrelse og følelser"],
+  [9,"Tid, vejr og hyppighed"],
+  [10,"Spørgeord og bindeord"]
+];
+
+var BY = {};
+WORDS.forEach(function(w){ BY[w.id] = w; });
+
+/* ---------- Hjælpere ---------- */
+var root = document.getElementById("app");
+function h(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function shuffle(a){ a = a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function norm(s){
+  return String(s).toLowerCase().normalize("NFC").replace(/[’‘`´]/g,"'").replace(/[?!.,;:«»"—–]/g," ").replace(/\s+/g," ").trim();
+}
+function loose(s){
+  return norm(s).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/œ/g,"oe").replace(/['-]/g," ").replace(/\s+/g," ").trim();
+}
+function judge(given, w){
+  var g = norm(given), targets = [w.fr].concat(w.alt || []);
+  if(targets.some(function(t){ return norm(t) === g; })) return "ok";
+  if(targets.some(function(t){ return loose(t) === loose(given); })) return "almost";
+  return "bad";
+}
+var ICON = '<svg viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M3 7.5h3.2L11 3.6v12.8l-4.8-3.9H3z"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M13.6 7.2a4 4 0 0 1 0 5.6M15.9 5a7 7 0 0 1 0 10"/></svg>';
+
+/* ---------- Fremskridt ---------- */
+var KEY = "fransk-ordforraad-v1";
+var DAY = 864e5;
+var INTERVALS = [10*6e4, DAY, 3*DAY, 7*DAY, 16*DAY, 35*DAY];
+var state = {v:1, words:{}, rounds:{}, resetAt:0, resume:null, resumeT:0};
+
+function loadLocal(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){ var s = JSON.parse(raw); if(s && s.words){ state = {v:1, words:s.words, rounds:s.rounds||{}, resetAt:s.resetAt||0, resume:s.resume||null, resumeT:s.resumeT||0}; } }
+  }catch(e){}
+}
+function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function save(){ saveLocal(); queuePush(); }
+function wp(id){ return state.words[id] || null; }
+function learnedCount(){ return WORDS.filter(function(w){ var p = wp(w.id); return p && p.box >= 1; }).length; }
+function dueWords(){
+  var now = Date.now();
+  return WORDS.filter(function(w){ var p = wp(w.id); return p && p.due <= now; })
+              .sort(function(a,b){ return wp(a.id).due - wp(b.id).due; });
+}
+function nextDue(){
+  var best = 0;
+  WORDS.forEach(function(w){ var p = wp(w.id); if(p && (!best || p.due < best)) best = p.due; });
+  return best;
+}
+function grade(id, ok){
+  var now = Date.now(), p = wp(id) || {box:0, ok:0, miss:0};
+  if(ok){ p.box = Math.min(5, (p.box||0) + 1); p.ok = (p.ok||0) + 1; }
+  else { p.box = 0; p.miss = (p.miss||0) + 1; }
+  p.due = now + INTERVALS[p.box]; p.t = now; state.words[id] = p;
+}
+function gradeRound(id, ok){
+  var now = Date.now(), p = wp(id);
+  if(ok){
+    if(!p || (p.box||0) < 1){ state.words[id] = {box:1, ok:((p&&p.ok)||0)+1, miss:(p&&p.miss)||0, due:now+INTERVALS[1], t:now}; }
+  } else {
+    state.words[id] = {box:0, ok:(p&&p.ok)||0, miss:((p&&p.miss)||0)+1, due:now+INTERVALS[0], t:now};
+  }
+}
+function relTime(ts){
+  var d = ts - Date.now();
+  if(d <= 0) return "nu";
+  if(d < 36e5) var m = Math.max(1, Math.round(d/6e4)); return "om " + m + (m === 1 ? " minut" : " minutter");
+  if(d < DAY) return "om " + Math.round(d/36e5) + " timer";
+  var n = Math.round(d/DAY); return n === 1 ? "i morgen" : "om " + n + " dage";
+}
+
+/* ---------- Synkronisering med Claude-kontoen (når siden vises i Claude) ---------- */
+var sync = {ref:null, on:false, timer:null, busy:false, dirty:false, fails:0};
+function mergeState(remote){
+  var resetAt = Math.max(state.resetAt||0, remote.resetAt||0), words = {}, rounds = {}, rw = remote.words||{}, ids = {};
+  Object.keys(state.words).forEach(function(k){ ids[k] = 1; });
+  Object.keys(rw).forEach(function(k){ ids[k] = 1; });
+  Object.keys(ids).forEach(function(id){
+    var a = state.words[id], b = rw[id];
+    var pick = !a ? b : !b ? a : ((b.t||0) > (a.t||0) ? b : a);
+    if(pick && (pick.t||0) > resetAt) words[id] = {box:pick.box||0, ok:pick.ok||0, miss:pick.miss||0, due:pick.due||0, t:pick.t||0};
+  });
+  [state.rounds, remote.rounds||{}].forEach(function(r){
+    Object.keys(r).forEach(function(k){ if(r[k] > resetAt) rounds[k] = Math.max(rounds[k]||0, r[k]); });
+  });
+  var newer = (remote.resumeT||0) > (state.resumeT||0);
+  var resume = newer ? (remote.resume||null) : (state.resume||null), resumeT = Math.max(state.resumeT||0, remote.resumeT||0);
+  if(resumeT <= resetAt) resume = null;
+  state = {v:1, words:words, rounds:rounds, resetAt:resetAt, resume:resume ? JSON.parse(JSON.stringify(resume)) : null, resumeT:resumeT};
+}
+function queuePush(){
+  if(!sync.ref) return;
+  sync.dirty = true; clearTimeout(sync.timer); sync.timer = setTimeout(push, 1500);
+}
+function push(){
+  if(!sync.ref || sync.busy || !sync.dirty) return;
+  sync.busy = true; sync.dirty = false;
+  sync.ref.set(JSON.parse(JSON.stringify(state))).then(function(){
+    sync.fails = 0; sync.busy = false; if(sync.dirty) queuePush();
+  }, function(e){
+    sync.busy = false; sync.fails++;
+    if(e && e.code === "unavailable" && sync.fails < 3){ sync.dirty = true; queuePush(); }
+    else { sync.ref = null; sync.on = false; storeNote(); }
+  });
+}
+function initSync(){
+  if(!window.claude || typeof window.claude.use !== "function") return;
+  Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function(r){
+    var db = r[0], user = r[1];
+    if(!db || !user) return null;
+    return user.id().then(function(uid){
+      if(!uid) return null;
+      var ref = db.doc("data/users/" + uid + "/fransk");
+      return ref.get().then(function(snap){
+        var before = "";
+        if(snap.exists){ var remote = snap.data() || {}; before = JSON.stringify({w:remote.words||{}, r:remote.rounds||{}, a:remote.resetAt||0, t:remote.resumeT||0}); mergeState(remote); saveLocal(); }
+        sync.ref = ref; sync.on = true;
+        var after = JSON.stringify({w:state.words, r:state.rounds, a:state.resetAt||0, t:state.resumeT||0});
+        if(after !== before && (Object.keys(state.words).length || state.resetAt || state.resumeT)) queuePush();
+        if(view === "home") render(); else storeNote();
+      });
+    });
+  }).catch(function(){});
+}
+function storeText(){
+  return sync.on ? "Dine fremskridt gemmes på din Claude-konto og følger med mellem dine enheder."
+                 : "Dine fremskridt gemmes i browseren på denne enhed.";
+}
+function storeNote(){ var el = document.getElementById("store-note"); if(el) el.textContent = storeText(); }
+
+/* ---------- Oplæsning ---------- */
+var tts = {ok:("speechSynthesis" in window) && ("SpeechSynthesisUtterance" in window), voice:null, loaded:false};
+function loadVoices(){
+  if(!tts.ok) return;
+  var vs = window.speechSynthesis.getVoices() || [];
+  if(vs.length){
+    tts.loaded = true;
+    var fr = vs.filter(function(v){ return /^fr([-_]|$)/i.test(v.lang); });
+    tts.voice = fr.filter(function(v){ return /^fr[-_]FR/i.test(v.lang); })[0] || fr[0] || null;
+  }
+  var el = document.getElementById("voice-note"); if(el) el.textContent = voiceText();
+}
+function voiceText(){
+  if(!tts.ok) return "Denne browser kan ikke læse op. Lytteøvelserne vises som tekst i stedet.";
+  if(tts.voice) return "Fransk stemme på denne enhed: " + tts.voice.name + ".";
+  if(tts.loaded) return "Der er ingen fransk stemme på denne enhed, så oplæsningen kan lyde forkert. Du kan hente en fransk stemme i enhedens indstillinger for tale.";
+  return "Tryk på knappen for at høre, om oplæsningen virker på denne enhed.";
+}
+function speak(text, slow){
+  if(!tts.ok) return;
+  try{
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(String(text).replace(/[—–]/g," "));
+    u.lang = "fr-FR"; if(tts.voice) u.voice = tts.voice;
+    u.rate = slow ? 0.6 : 0.9;
+    setTimeout(function(){ try{ window.speechSynthesis.speak(u); }catch(e){} }, 60);
+  }catch(e){}
+}
+
+/* ---------- Mikrofon ---------- */
+var IN_APP = /Electron\//.test(navigator.userAgent || "");
+var FRAMED = (function(){ try{ return window.self !== window.top; }catch(e){ return true; } })();
+var LOCAL_FILE = location.protocol === "file:";
+var SR = (IN_APP || FRAMED || LOCAL_FILE) ? null : (window.SpeechRecognition || window.webkitSpeechRecognition || null);
+var SR_DOWN = "Talegenkendelsen svarer ikke i denne browser eller app. Den virker i Chrome, Edge og Safari. Brug ”Optag dig selv” her.";
+var canRec = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+var mic = {state:(SR || canRec) ? "unknown" : "none", rec:null, sr:null, url:null, timer:null};
+function micNote(msg){ var el = document.getElementById("mic-status"); if(el) el.textContent = msg; }
+function micBlocked(){ mic.state = "blocked"; var box = document.getElementById("mic-box"); if(box) box.innerHTML = micHTML(); }
+function micStop(){
+  clearTimeout(mic.timer);
+  if(mic.rec){ try{ mic.rec.onstop = null; mic.rec.stream.getTracks().forEach(function(t){ t.stop(); }); mic.rec.stop(); }catch(e){} mic.rec = null; }
+  if(mic.sr){ try{ mic.sr.onend = null; mic.sr.abort(); }catch(e){} mic.sr = null; }
+  if(mic.url){ try{ URL.revokeObjectURL(mic.url); }catch(e){} mic.url = null; }
+}
+function micHTML(){
+  if(mic.state === "blocked" || mic.state === "none"){
+    return '<p class="note">Mikrofonen kan ikke bruges i denne visning. Lyt til modellen, sig ordet højt et par gange, og vurder selv.</p>';
+  }
+  return '<div class="row">' +
+    (canRec ? '<button class="btn" data-act="rec" id="rec-btn">Optag dig selv</button>' : '') +
+    (SR ? '<button class="btn" data-act="sr" id="sr-btn">Tjek med talegenkendelse</button>' : '') +
+    '</div><div class="row" id="playback" hidden><button class="btn small" data-act="play-mine">Hør dig selv</button><button class="btn small" data-act="speak">Hør modellen</button></div>' +
+    '<p class="note" id="mic-status" role="status">Første gang spørger browseren om lov til at bruge mikrofonen.</p>' +
+    (SR ? '' : '<p class="note">' + (FRAMED || IN_APP ? 'Talegenkendelse virker ikke, når siden vises inde i Claude. Den kommer med, når siden flyttes til GitHub Pages.' : LOCAL_FILE ? 'Talegenkendelse virker ikke, når siden er åbnet som fil fra computeren. Den kommer med, når siden ligger på GitHub Pages.' : 'Talegenkendelse findes ikke i denne browser. Den virker i Chrome, Edge og Safari.') + '</p>');
+}
+
+/* ---------- Sessioner ---------- */
+var view = "home", session = null, confirmReset = false;
+
+function cur(){ return session.queue[session.pos]; }
+function snapshot(){
+  if(!session) return;
+  state.resume = JSON.parse(JSON.stringify({kind:session.kind, roundId:session.round ? session.round.id : null, learn:session.learn, li:session.li,
+    inLearn:view === "learn", queue:session.queue, pos:session.pos, missed:session.missed, asked:session.asked, firstOk:session.firstOk}));
+  state.resumeT = Date.now(); save();
+}
+function clearResume(){ state.resume = null; state.resumeT = Date.now(); }
+function resumeInfo(){
+  var r = state.resume; if(!r || !Array.isArray(r.queue) || !Array.isArray(r.learn)) return null;
+  var round = r.kind === "round" ? ROUNDS.filter(function(x){ return x.id === r.roundId; })[0] : null;
+  if(r.kind === "round" && !round) return null;
+  if(!(r.pos >= 0 && r.pos < r.queue.length) || !(r.li >= 0 && r.li <= r.learn.length)) return null;
+  if(r.queue.some(function(it){ return !it || !BY[it.w]; }) || r.learn.some(function(id){ return !BY[id]; })) return null;
+  var total = r.learn.length + r.queue.length, at = r.inLearn ? r.li : r.learn.length + r.pos;
+  return {round:round, label:round ? "Runde " + (ROUNDS.indexOf(round)+1) + " · " + round.name : "Gentagelse", at:at + 1, total:total};
+}
+function resumeSession(){
+  var info = resumeInfo(); if(!info){ clearResume(); save(); render(); return; }
+  var r = JSON.parse(JSON.stringify(state.resume));
+  session = {kind:r.kind, round:info.round, learn:r.learn, li:Math.min(r.li, Math.max(0, r.learn.length - 1)), queue:r.queue, pos:r.pos,
+    missed:r.missed||{}, asked:r.asked||0, firstOk:r.firstOk||0};
+  view = r.inLearn && r.learn.length ? "learn" : "ex"; render();
+}
+function newSession(kind, round, learn, queue){
+  session = {kind:kind, round:round, learn:learn, li:0, queue:queue, pos:0, missed:{}, asked:0, firstOk:0};
+}
+function startRound(r){
+  var q = [], idx = ROUNDS.indexOf(r), types = tts.ok ? ["mc","write","dict","say"] : ["mc","write","say"];
+  if(idx > 0){
+    var earlier = [];
+    ROUNDS.slice(0, idx).forEach(function(x){ x.words.forEach(function(id){ if(wp(id)) earlier.push(id); }); });
+    earlier.sort(function(a,b){ return wp(a).due - wp(b).due; });
+    earlier.slice(0, 3).forEach(function(id){ q.push({w:id, type:"mc", warm:true}); });
+  }
+  types.forEach(function(t){ shuffle(r.words).forEach(function(id){ q.push({w:id, type:t}); }); });
+  newSession("round", r, r.words.slice(), q);
+  view = "learn"; render();
+}
+function startReview(){
+  var due = dueWords().slice(0, 12);
+  if(!due.length) return;
+  var q = due.map(function(w){
+    var b = wp(w.id).box || 0;
+    var t = b === 0 ? "mc" : b === 1 ? "write" : b === 2 ? "dict" : (b % 2 ? "write" : "dict");
+    if(t === "dict" && !tts.ok) t = "write";
+    return {w:w.id, type:t};
+  });
+  newSession("review", null, [], shuffle(q));
+  view = "ex"; render();
+}
+function requeue(it){
+  var n = (it.retry||0) + 1;
+  if(n > 2) return;
+  var q = session.queue, j = session.pos + 1;
+  while(j < q.length && q[j].type === it.type && !!q[j].warm === !!it.warm) j++;
+  q.splice(Math.min(session.pos + 4, j), 0, {w:it.w, type:it.type, warm:it.warm, retry:n});
+}
+function answer(result, given){
+  var it = cur(); if(it.result) return;
+  it.result = result; it.given = given;
+  var ok = result === "ok";
+  if(!it.retry){
+    session.asked++; if(ok) session.firstOk++;
+    if(session.kind === "review" || it.warm){ grade(it.w, ok); save(); }
+  }
+  if(!ok){ session.missed[it.w] = true; requeue(it); }
+  render();
+}
+function next(){
+  micStop();
+  session.pos++;
+  if(session.pos >= session.queue.length){ finish(); return; }
+  render();
+}
+function finish(){
+  if(session.kind === "round"){
+    session.round.words.forEach(function(id){ gradeRound(id, !session.missed[id]); });
+    state.rounds[session.round.id] = Date.now();
+  }
+  clearResume(); save();
+  view = "done"; render();
+}
+
+/* ---------- Visninger ---------- */
+function sessHead(){
+  var s = session, total = s.learn.length + s.queue.length;
+  var at = view === "learn" ? s.li : s.learn.length + s.pos;
+  var label = s.kind === "round" ? "Runde " + (ROUNDS.indexOf(s.round)+1) + " · " + s.round.name : "Gentagelse";
+  var pct = Math.round(100 * at / total);
+  return '<div class="sess-head"><button class="btn quiet small" data-act="quit">Luk</button><span class="sess-label">' + h(label) +
+    '</span><span class="sess-count">' + (at+1) + ' / ' + total + '</span></div>' +
+    '<div class="bar" role="progressbar" aria-label="Fremskridt i runden" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><span style="width:' + pct + '%"></span></div>';
+}
+function cahier(w){
+  return '<div class="cahier"><p class="fr' + (w.fr.length > 11 ? ' long' : '') + '" lang="fr">' + h(w.fr) + '</p><p class="ipa">[' + h(w.ipa) + ']</p></div>';
+}
+function listenRow(){
+  if(!tts.ok) return "";
+  return '<div class="row"><button class="btn" data-act="speak">' + ICON + 'Hør</button><button class="btn" data-act="speak-slow">Langsomt</button></div>';
+}
+var ACCENTS = ["é","è","ê","à","â","ç","ô","û","ù","î","ï","œ","'","-"];
+function inputBlock(it){
+  var done = !!it.result;
+  return '<form class="answer" data-form="answer" autocomplete="off">' +
+    '<label class="note" for="answer">Dit svar på fransk</label>' +
+    '<input id="answer" name="answer" type="text" lang="fr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="' + h(it.given||"") + '"' + (done ? " disabled" : "") + '>' +
+    (done ? "" : '<div class="accents" aria-label="Indsæt tegn">' + ACCENTS.map(function(c){ return '<button type="button" data-act="ins" data-ch="' + h(c) + '" aria-label="Indsæt ' + h(c) + '">' + h(c) + '</button>'; }).join("") + '</div>' +
+      '<p class="note" id="answer-note" role="status"></p>' +
+      '<div class="actions"><button type="button" class="btn quiet" data-act="giveup">Jeg ved det ikke</button><button type="submit" class="btn primary">Tjek</button></div>') +
+    '</form>';
+}
+function feedback(it, w){
+  if(!it.result) return "";
+  var cls = it.result === "ok" ? "good" : it.result === "almost" ? "warn" : "bad";
+  var head = it.result === "ok" ? "Rigtigt." : it.result === "almost" ? "Næsten. Pas på accenter og tegn." : "Ikke helt. Det rigtige svar er:";
+  return '<div class="fb ' + cls + '" role="status"><p class="fb-head">' + head + '</p>' +
+    '<p class="fb-word"><span lang="fr">' + h(w.fr) + '</span> <span class="ipa">[' + h(w.ipa) + ']</span></p>' +
+    '<p class="fb-da">' + h(w.da) + '</p>' +
+    (it.result !== "ok" && (it.retry||0) < 2 ? '<p class="note">Ordet kommer igen om lidt.</p>' : "") +
+    '</div><div class="actions">' + (tts.ok ? '<button class="btn" data-act="speak">' + ICON + 'Hør ordet</button>' : "") +
+    '<button class="btn primary" id="continue" data-act="next">Fortsæt</button></div>';
+}
+
+function learnHTML(){
+  var s = session, w = BY[s.learn[s.li]], last = s.li === s.learn.length - 1;
+  return sessHead() + '<section class="stage">' +
+    '<p class="kicker">Nyt ord ' + (s.li+1) + ' af ' + s.learn.length + '</p>' +
+    cahier(w) + '<p class="meaning">' + h(w.da) + '</p>' + listenRow() +
+    '<p class="tip">' + h(w.tip) + '</p>' +
+    '<div class="example"><p class="ex-fr" lang="fr">' + h(w.ex) + '</p><p class="ex-da">' + h(w.exda) + '</p>' +
+    (tts.ok ? '<button class="btn small" data-act="speak-ex">' + ICON + 'Hør sætningen</button>' : "") + '</div>' +
+    '<div class="actions">' + (s.li > 0 ? '<button class="btn" data-act="learn-prev">Tilbage</button>' : "") +
+    '<button class="btn primary" id="continue" data-act="learn-next">' + (last ? "Start øvelserne" : "Næste ord") + '</button></div></section>';
+}
+
+function exHTML(){
+  var it = cur(), w = BY[it.w], out = sessHead() + '<section class="stage">';
+  var kick = it.warm ? "Opvarmning fra tidligere runder" : it.retry ? "En gang til" : "";
+  if(it.type === "mc"){
+    if(!it.opts){
+      var pool = shuffle(WORDS.filter(function(x){ return x.id !== w.id; }));
+      var same = session.round ? pool.filter(function(x){ return session.round.words.indexOf(x.id) >= 0; }) : [];
+      var rest = pool.filter(function(x){ return same.indexOf(x) < 0; });
+      it.opts = shuffle([w].concat(same.concat(rest).slice(0, 3))).map(function(x){ return x.id; });
+    }
+    out += '<p class="kicker">' + h(kick || "Genkend") + '</p><h2>' + (tts.ok ? "Hvad betyder det, du hører?" : "Hvad betyder ordet?") + '</h2>';
+    out += tts.ok && !it.result ? listenRow() : "";
+    if(!tts.ok && !it.result) out += cahier(w);
+    out += '<div class="opts">' + it.opts.map(function(id, i){
+      var cls = "btn opt";
+      if(it.result){ if(id === w.id) cls += " right"; else if(i === it.picked) cls += " wrong"; }
+      return '<button class="' + cls + '" data-act="pick" data-i="' + i + '"' + (it.result ? " disabled" : "") + '>' + h(BY[id].da) + '</button>';
+    }).join("") + '</div>' + feedback(it, w);
+  } else if(it.type === "write"){
+    out += '<p class="kicker">' + h(kick || "Skriv") + '</p><h2>Skriv det på fransk</h2><p class="prompt-da">' + h(w.da) + '</p>' + inputBlock(it) + feedback(it, w);
+  } else if(it.type === "dict"){
+    out += '<p class="kicker">' + h(kick || "Diktat") + '</p><h2>Skriv det, du hører</h2>' + (it.result ? "" : listenRow()) +
+      (w.hint && !it.result ? '<p class="note">Ordet betyder ”' + h(w.da) + '”. Flere franske ord lyder ens, så betydningen afgør stavningen.</p>' : "") +
+      inputBlock(it) + feedback(it, w);
+  } else {
+    out += '<p class="kicker">' + h(kick || "Sig det") + '</p><h2>Sig det højt</h2>' + cahier(w) +
+      '<p class="meaning">' + h(w.da) + '</p><p class="tip">' + h(w.tip) + '</p>' + listenRow() +
+      '<div class="block" id="mic-box">' + micHTML() + '</div>' +
+      '<div class="actions"><button class="btn" data-act="say-again">Øv det igen senere</button><button class="btn primary" id="continue" data-act="say-ok">Det sad</button></div>';
+  }
+  return out + '</section>';
+}
+
+function doneHTML(){
+  var s = session, missed = Object.keys(s.missed), isRound = s.kind === "round";
+  var nextRound = ROUNDS.filter(function(r){ return !state.rounds[r.id]; })[0];
+  var out = '<section class="stage"><p class="kicker">' + (isRound ? "Runde " + (ROUNDS.indexOf(s.round)+1) + " gennemført" : "Gentagelse gennemført") + '</p>' +
+    '<h2>' + (isRound ? h(s.round.name) : "Godt gået") + '</h2>' +
+    '<p class="score">' + s.firstOk + ' / ' + s.asked + '</p><p class="lede">rigtige svar i første forsøg.</p>';
+  if(missed.length){
+    out += '<div class="block"><p class="kicker">Ord, der drillede</p><ul class="missed">' + missed.map(function(id){
+      var w = BY[id]; return '<li><span class="word-fr" lang="fr">' + h(w.fr) + '</span><span class="note">' + h(w.da) + '</span></li>';
+    }).join("") + '</ul><p class="note">De er klar til gentagelse om ti minutter.</p></div>';
+  } else {
+    out += '<p>Ingen fejl. Ordene kommer igen til gentagelse i morgen.</p>';
+  }
+  out += '<div class="actions"><button class="btn" data-act="home">Til oversigten</button>' +
+    (isRound && nextRound ? '<button class="btn primary" id="continue" data-act="round" data-id="' + nextRound.id + '">Start runde ' + (ROUNDS.indexOf(nextRound)+1) + '</button>' : "") + '</div></section>';
+  return out;
+}
+
+function chipFor(id){
+  var p = wp(id);
+  if(!p) return '<span class="chip">Ny</span>';
+  if(p.box < 1) return '<span class="chip s1">Øves</span>';
+  if(p.box < 4) return '<span class="chip s2">Kan</span>';
+  return '<span class="chip s3">Sikker</span>';
+}
+function homeHTML(){
+  var learned = learnedCount(), total = WORDS.length, pct = Math.round(100 * learned / total);
+  var nextRound = ROUNDS.filter(function(r){ return !state.rounds[r.id]; })[0];
+  var due = dueWords(), nd = nextDue();
+  var ri = resumeInfo();
+  var out = '<div class="stack">';
+  out += '<header class="block"><p class="kicker">Fransk for begyndere · lektion 1 af 10</p><h1>Fransk ordforråd</h1>' +
+    '<p class="lede">Ti lektioner med de mest brugte franske ord. Du hører, genkender, skriver og siger hvert ord, og de svære kommer igen.</p>' +
+    '<div class="meter"><div class="meter-text"><span>' + learned + ' af ' + total + ' ord lært i lektion 1</span><span>' + pct + ' %</span></div>' +
+    '<div class="bar" role="progressbar" aria-label="Ord lært" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><span style="width:' + pct + '%"></span></div></div></header>';
+
+  if(ri){
+    out += '<section class="block resume"><p class="kicker">Du er i gang</p><h2>' + h(ri.label) + '</h2>' +
+      '<p class="note">Du nåede til trin ' + ri.at + ' af ' + ri.total + '.</p>' +
+      '<div class="row"><button class="btn primary" data-act="resume">Fortsæt, hvor du slap</button></div></section>';
+  }
+
+  out += '<section class="block"><p class="kicker">Lektion 1</p><h2>Hilsner, høflighed og småord</h2>' +
+    '<p class="note">Fem runder med seks ord i hver. En runde tager omkring fem minutter.</p><ol class="rounds">';
+  ROUNDS.forEach(function(r, i){
+    var done = !!state.rounds[r.id], isNext = !ri && nextRound && nextRound.id === r.id;
+    out += '<li class="round"><div><span class="round-name">' + (i+1) + '. ' + h(r.name) + '</span>' + (done ? ' <span class="round-state">Gennemført</span>' : "") + '</div>' +
+      '<p class="round-words" lang="fr">' + r.words.map(function(id){ return h(BY[id].fr); }).join(", ") + '</p>' +
+      '<button class="btn' + (isNext ? " primary" : "") + ' small" data-act="round" data-id="' + r.id + '">' + (done ? "Tag igen" : "Start") + '</button></li>';
+  });
+  out += '</ol></section>';
+
+  out += '<section class="block"><p class="kicker">Gentagelse</p>';
+  if(due.length){
+    out += '<h2>' + due.length + ' ord er klar til gentagelse</h2><p class="note">Ord, du kan, kommer igen med længere og længere mellemrum. Ord, du svarer forkert på, kommer hurtigt igen.</p>' +
+      '<div class="row"><button class="btn' + (ri ? '' : ' primary') + '" data-act="review">Gentag ' + Math.min(12, due.length) + ' ord nu</button></div>';
+  } else if(nd){
+    out += '<h2>Ingen ord venter lige nu</h2><p class="note">Næste ord er klar til gentagelse ' + relTime(nd) + '.</p>';
+  } else {
+    out += '<h2>Ingen ord at gentage endnu</h2><p class="note">Når du har gennemført en runde, dukker ordene op her igen med stigende mellemrum.</p>';
+  }
+  out += '</section>';
+
+  out += '<section class="block"><p class="kicker">Lyd</p><p id="voice-note">' + h(voiceText()) + '</p>' +
+    (tts.ok ? '<div class="row"><button class="btn" data-act="voice-test">' + ICON + 'Prøv lyden</button></div>' : "") + '</section>';
+
+  out += '<section class="block"><p class="kicker">Ordliste</p><h2>De 30 ord i lektion 1</h2><div>';
+  ROUNDS.forEach(function(r){
+    out += '<p class="group-title">' + h(r.name) + '</p><ul class="words">' + r.words.map(function(id){
+      var w = BY[id];
+      return '<li class="word"><button class="say" data-act="say-word" data-id="' + id + '" aria-label="Hør ' + h(w.fr) + '"' + (tts.ok ? "" : " disabled") + '>' + ICON + '</button>' +
+        '<span class="word-fr" lang="fr">' + h(w.fr) + '</span>' + chipFor(id) + '<span class="word-da">' + h(w.da) + '</span></li>';
+    }).join("") + '</ul>';
+  });
+  out += '</div></section>';
+
+  out += '<section class="block"><p class="kicker">Kommende lektioner</p><ol class="upcoming">' + UPCOMING.map(function(u){
+    return '<li><span>' + u[0] + '</span><span>' + h(u[1]) + '</span></li>'; }).join("") + '</ol></section>';
+
+  out += '<section class="block"><p class="note" id="store-note">' + h(storeText()) + '</p>';
+  if(confirmReset){
+    out += '<p>Vil du slette alle fremskridt og begynde forfra?</p><div class="row"><button class="btn" data-act="reset-yes">Ja, slet fremskridt</button><button class="btn quiet" data-act="reset-no">Fortryd</button></div>';
+  } else if(Object.keys(state.words).length || state.resume){
+    out += '<div class="row"><button class="btn quiet" data-act="reset">Nulstil fremskridt</button></div>';
+  }
+  out += '</section></div>';
+  return out;
+}
+
+function render(){
+  root.innerHTML = view === "home" ? homeHTML() : view === "learn" ? learnHTML() : view === "ex" ? exHTML() : doneHTML();
+  try{ window.scrollTo(0, 0); }catch(e){}
+  if(session && (view === "learn" || view === "ex")) snapshot();
+  if(view === "learn"){ speak(BY[session.learn[session.li]].fr); }
+  if(view === "ex"){
+    var it = cur(), w = BY[it.w];
+    if(!it.result && (it.type === "mc" || it.type === "dict")) speak(w.fr);
+    if(it.result && it.type === "write") speak(w.fr);
+    var inp = document.getElementById("answer"), cont = document.getElementById("continue");
+    if(inp && !it.result){ try{ inp.focus(); }catch(e){} }
+    else if(cont && it.result){ try{ cont.focus(); }catch(e){} }
+  }
+}
+
+/* ---------- Handlinger ---------- */
+var actions = {
+  round: function(b){ var r = ROUNDS.filter(function(x){ return x.id === b.dataset.id; })[0]; if(r) startRound(r); },
+  review: function(){ startReview(); },
+  resume: function(){ resumeSession(); },
+  home: function(){ micStop(); session = null; view = "home"; render(); },
+  quit: function(){ micStop(); try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} session = null; view = "home"; render(); },
+  "learn-next": function(){ if(session.li < session.learn.length - 1){ session.li++; } else { view = "ex"; } render(); },
+  "learn-prev": function(){ if(session.li > 0){ session.li--; render(); } },
+  speak: function(){ var id = view === "learn" ? session.learn[session.li] : cur().w; speak(BY[id].fr); },
+  "speak-slow": function(){ var id = view === "learn" ? session.learn[session.li] : cur().w; speak(BY[id].fr, true); },
+  "speak-ex": function(){ var w = BY[session.learn[session.li]]; speak(w.say || w.ex); },
+  "say-word": function(b){ speak(BY[b.dataset.id].fr); },
+  "voice-test": function(){ loadVoices(); speak("Bonjour et bienvenue !"); },
+  pick: function(b){ var it = cur(); if(it.result) return; it.picked = +b.dataset.i; answer(it.opts[it.picked] === it.w ? "ok" : "bad", ""); },
+  ins: function(b){
+    var inp = document.getElementById("answer"); if(!inp || inp.disabled) return;
+    var s = inp.selectionStart == null ? inp.value.length : inp.selectionStart, e = inp.selectionEnd == null ? s : inp.selectionEnd;
+    inp.value = inp.value.slice(0, s) + b.dataset.ch + inp.value.slice(e);
+    inp.focus(); try{ inp.setSelectionRange(s + 1, s + 1); }catch(err){}
+  },
+  giveup: function(){ answer("bad", (document.getElementById("answer") || {}).value || ""); },
+  next: function(){ next(); },
+  "say-ok": function(){ next(); },
+  "say-again": function(){ var it = cur(); if(!it.retry) session.queue.push({w:it.w, type:"say", retry:1}); next(); },
+  "play-mine": function(){ if(mic.url){ try{ new Audio(mic.url).play().catch(function(){}); }catch(e){} } },
+  rec: function(btn){
+    if(mic.rec){ try{ mic.rec.stop(); }catch(e){} return; }
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+      var chunks = [], r;
+      try{ r = new MediaRecorder(stream); }catch(e){ stream.getTracks().forEach(function(t){ t.stop(); }); micBlocked(); return; }
+      mic.rec = r;
+      r.ondataavailable = function(e){ if(e.data && e.data.size) chunks.push(e.data); };
+      r.onstop = function(){
+        stream.getTracks().forEach(function(t){ t.stop(); });
+        mic.rec = null; clearTimeout(mic.timer);
+        if(mic.url){ try{ URL.revokeObjectURL(mic.url); }catch(e){} }
+        mic.url = URL.createObjectURL(new Blob(chunks, {type:r.mimeType || "audio/webm"}));
+        var b = document.getElementById("rec-btn"); if(b) b.textContent = "Optag igen";
+        var p = document.getElementById("playback"); if(p) p.hidden = false;
+        micNote("Optaget. Hør dig selv, og sammenlign med modellen.");
+        actions["play-mine"]();
+      };
+      r.start(); btn.textContent = "Stop optagelsen"; micNote("Optager. Sig ordet nu.");
+      mic.timer = setTimeout(function(){ if(mic.rec){ try{ mic.rec.stop(); }catch(e){} } }, 5000);
+    }).catch(function(){ micBlocked(); });
+  },
+  sr: function(btn){
+    if(mic.sr){ try{ mic.sr.abort(); }catch(e){} return; }
+    var w = BY[cur().w], r, got = false, audio = false, heard = false;
+    try{ r = new SR(); }catch(e){ micBlocked(); return; }
+    r.lang = "fr-FR"; r.interimResults = false; r.maxAlternatives = 3; mic.sr = r;
+    r.onaudiostart = function(){ audio = true; micNote("Sig ordet nu."); };
+    r.onspeechstart = function(){ heard = true; };
+    r.onresult = function(ev){
+      got = true;
+      var alts = [], res = ev.results[0];
+      for(var i = 0; i < res.length; i++) alts.push(res[i].transcript);
+      var target = loose(w.fr);
+      var hit = alts.some(function(a){ var l = loose(a); return l === target || (" " + l + " ").indexOf(" " + target + " ") >= 0; });
+      micNote(hit ? "Genkendelsen hørte ”" + alts[0] + "”. Det passer."
+                  : "Genkendelsen hørte ”" + alts[0] + "”. Lyt til modellen, og prøv igen. Helt korte ord bliver ofte misforstået.");
+    };
+    r.onerror = function(ev){
+      got = true;
+      if(ev.error === "not-allowed") micBlocked();
+      else if(ev.error === "no-speech") micNote("Der blev ikke opfanget nogen tale. Vent, til der står ”Sig ordet nu”, og prøv igen.");
+      else if(ev.error === "network" || ev.error === "service-not-allowed" || ev.error === "language-not-supported") micNote(SR_DOWN);
+      else if(ev.error === "audio-capture") micNote("Talegenkendelsen kunne ikke få fat i mikrofonen. Luk andre programmer, der bruger den, og prøv igen.");
+      else if(ev.error !== "aborted") micNote("Talegenkendelsen fejlede (" + ev.error + "). Brug ”Optag dig selv” i stedet.");
+    };
+    r.onend = function(){
+      mic.sr = null; var b = document.getElementById("sr-btn"); if(b) b.textContent = "Tjek med talegenkendelse";
+      if(!got) micNote(heard ? "Der blev hørt tale, men intet ord blev genkendt. Sig ordet lidt langsommere, og prøv igen."
+                       : audio ? "Der blev ikke opfanget nogen tale. Prøv igen tættere på mikrofonen."
+                       : SR_DOWN);
+    };
+    try{ r.start(); btn.textContent = "Lytter …"; micNote("Gør klar …"); }catch(e){ mic.sr = null; micNote(SR_DOWN); }
+  },
+  reset: function(){ confirmReset = true; render(); },
+  "reset-no": function(){ confirmReset = false; render(); },
+  "reset-yes": function(){ confirmReset = false; var now = Date.now(); state = {v:1, words:{}, rounds:{}, resetAt:now, resume:null, resumeT:now}; save(); render(); }
+};
+
+root.addEventListener("click", function(e){
+  var b = e.target.closest("[data-act]");
+  if(!b || b.disabled) return;
+  var fn = actions[b.dataset.act];
+  if(fn) fn(b, e);
+});
+root.addEventListener("submit", function(e){
+  e.preventDefault();
+  if(!session || view !== "ex") return;
+  var it = cur(); if(it.result) return;
+  var inp = document.getElementById("answer"), val = inp ? inp.value : "";
+  if(!val.trim()){
+    var n = document.getElementById("answer-note"); if(n) n.textContent = "Skriv et svar, eller tryk på ”Jeg ved det ikke”.";
+    return;
+  }
+  answer(judge(val, BY[it.w]), val);
+});
+
+/* ---------- Start ---------- */
+loadLocal();
+if(tts.ok){
+  loadVoices();
+  try{ window.speechSynthesis.addEventListener("voiceschanged", loadVoices); }catch(e){ window.speechSynthesis.onvoiceschanged = loadVoices; }
+}
+render();
+initSync();
+
+// Til afprøvning: de rene funktioner kan kaldes udefra.
+window.__fransk = {judge:judge, norm:norm, loose:loose, BY:BY, getState:function(){ return state; }, mergeState:mergeState,
+  current:function(){ var it = session && session.queue[session.pos]; return it ? {fr:BY[it.w].fr, da:BY[it.w].da, type:it.type} : null; }};
+})();
+</script>
+</body>
+</html>
