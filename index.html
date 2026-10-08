@@ -426,15 +426,29 @@ function voiceText(){
   if(tts.loaded) return "Der er ingen fransk stemme på denne enhed, så oplæsningen kan lyde forkert. Du kan hente en fransk stemme i enhedens indstillinger for tale.";
   return "Tryk på knappen for at høre, om oplæsningen virker på denne enhed.";
 }
-function speak(text, slow){
+function frVoices(){
+  try{ return (window.speechSynthesis.getVoices() || []).filter(function(v){ return /^fr([-_]|$)/i.test(v.lang); }); }catch(e){ return []; }
+}
+// Taler teksten. Virker den valgte stemme ikke (ingen start eller en fejl), prøves
+// der igen uden at vælge stemme, så telefonens standardmotor tager over.
+function speak(text, slow, report){
   if(!tts.ok) return;
-  try{
-    var synth = window.speechSynthesis;
+  var synth = window.speechSynthesis, started = false, retried = false;
+  function make(withVoice){
     var u = new SpeechSynthesisUtterance(String(text).replace(/[—–]/g," "));
-    u.lang = "fr-FR"; if(tts.voice) u.voice = tts.voice;
-    u.rate = slow ? 0.6 : 0.9;
-    // iPhone og iPad afspiller kun tale, der startes direkte i trykket. Derfor
-    // tales der med det samme, og kun en igangværende oplæsning stoppes først.
+    u.lang = "fr-FR"; u.volume = 1; u.rate = slow ? 0.6 : 0.9;
+    if(withVoice && tts.voice) u.voice = tts.voice;
+    u.onstart = function(){ started = true; if(report) report("start", withVoice); };
+    u.onend = function(){ if(report) report("end", withVoice); };
+    u.onerror = function(ev){
+      if(report) report("error", withVoice, ev && ev.error);
+      if(!started && withVoice && !retried){ retried = true; tts.skipVoice = true; try{ synth.speak(make(false)); }catch(e){} }
+    };
+    return u;
+  }
+  var useVoice = !!tts.voice && !tts.skipVoice;
+  try{
+    var u = make(useVoice);
     if(synth.speaking || synth.pending){
       synth.cancel();
       setTimeout(function(){ try{ synth.speak(u); }catch(e){} }, 80);
@@ -442,20 +456,24 @@ function speak(text, slow){
       synth.speak(u);
     }
     if(synth.paused) synth.resume();
-  }catch(e){}
+  }catch(e){ if(report) report("error", useVoice, String(e && e.message || e)); }
+  if(useVoice){
+    setTimeout(function(){
+      if(!started && !retried){ retried = true; tts.skipVoice = true; try{ synth.cancel(); synth.speak(make(false)); }catch(e){} }
+    }, 2000);
+  }
+  if(report) setTimeout(function(){ if(!started) report("nostart"); }, 5000);
 }
-// Første tryk på siden låser lyden op på telefoner, der kræver det.
+// iPhone og iPad: første tryk på siden låser lyden op.
 (function(){
-  if(!tts.ok) return;
+  if(!tts.ok || !/iPhone|iPad|iPod/.test(navigator.userAgent || "")) return;
   var done = false;
   function unlock(){
     if(done) return; done = true;
     try{ var u = new SpeechSynthesisUtterance(" "); u.volume = 0; window.speechSynthesis.speak(u); }catch(e){}
     document.removeEventListener("touchend", unlock, true);
-    document.removeEventListener("click", unlock, true);
   }
   document.addEventListener("touchend", unlock, true);
-  document.addEventListener("click", unlock, true);
 })();
 
 /* ---------- Mikrofon ---------- */
@@ -722,7 +740,7 @@ function homeHTML(){
   out += '</section>';
 
   out += '<section class="block"><p class="kicker">Lyd</p><p id="voice-note">' + h(voiceText()) + '</p>' +
-    (tts.ok ? '<div class="row"><button class="btn" data-act="voice-test">' + ICON + 'Prøv lyden</button></div>' : "") + '</section>';
+    (tts.ok ? '<div class="row"><button class="btn" data-act="voice-test">' + ICON + 'Prøv lyden</button></div><p class="note" id="voice-diag" role="status" hidden></p>' : "") + '</section>';
 
   out += '<section class="block"><p class="kicker">Ordliste</p><h2>De 30 ord i lektion 1</h2><div>';
   ROUNDS.forEach(function(r){
@@ -775,7 +793,22 @@ var actions = {
   "speak-slow": function(){ var id = view === "learn" ? session.learn[session.li] : cur().w; speak(BY[id].fr, true); },
   "speak-ex": function(){ var w = BY[session.learn[session.li]]; speak(w.say || w.ex); },
   "say-word": function(b){ speak(BY[b.dataset.id].fr); },
-  "voice-test": function(){ loadVoices(); speak("Bonjour et bienvenue !"); },
+  "voice-test": function(){
+    loadVoices();
+    var el = document.getElementById("voice-diag"); if(!el) return;
+    var fv = frVoices(), lines = [];
+    lines.push("Franske stemmer fundet: " + fv.length + (fv.length ? " (" + fv.slice(0, 4).map(function(v){ return v.name; }).join(", ") + ")" : "") + ".");
+    lines.push("Afspiller …");
+    el.hidden = false; el.textContent = lines.join(" ");
+    speak("Bonjour et bienvenue !", false, function(kind, withVoice, err){
+      var how = withVoice ? "med den valgte stemme" : "med telefonens standardstemme";
+      var msg = kind === "start" ? "Oplæsningen startede " + how + "."
+              : kind === "end" ? "Oplæsningen er færdig " + how + ". Hørte du ikke noget, så tjek medielydstyrken."
+              : kind === "error" ? "Oplæsningen fejlede " + how + " (" + (err || "ukendt fejl") + ")."
+              : "Telefonen startede slet ikke oplæsningen.";
+      lines[1] = msg; el.textContent = lines.join(" ");
+    });
+  },
   pick: function(b){ var it = cur(); if(it.result) return; it.picked = +b.dataset.i; answer(it.opts[it.picked] === it.w ? "ok" : "bad", ""); },
   ins: function(b){
     var inp = document.getElementById("answer"); if(!inp || inp.disabled) return;
